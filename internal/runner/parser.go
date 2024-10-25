@@ -7,22 +7,24 @@ import (
 	"os"
 
 	"github.com/logrusorgru/aurora"
-	"github.com/projectdiscovery/gologger"
 )
 
 // Options will defines its options
 type Options struct {
 	Concurrency int
-	Timeout     int
 	Depth       int
-	URL         string
 	Ext         string
-	Output      string
-	InScope     bool
-	Silent      bool
-	Verbose     bool
-	List        *bufio.Scanner
 	File        *os.File
+	List        *bufio.Scanner
+	Output      string
+	SameHost    bool
+	SameRoot    bool
+	Silent      bool
+	Template    string
+	Timeout     int
+	URL         string
+	Verbose     bool
+	Wait        int
 }
 
 // Parse user given arguments
@@ -35,16 +37,26 @@ func Parse() *Options {
 	flag.IntVar(&opt.Concurrency, "concurrency", 50, "")
 	flag.IntVar(&opt.Concurrency, "c", 50, "")
 
+	flag.IntVar(&opt.Wait, "wait", 1, "")
+	flag.IntVar(&opt.Wait, "w", 1, "")
+
+	flag.IntVar(&opt.Depth, "depth", 1, "")
+	flag.IntVar(&opt.Depth, "d", 1, "")
+
 	flag.IntVar(&opt.Timeout, "timeout", 60, "")
 	flag.IntVar(&opt.Timeout, "t", 60, "")
 
 	flag.StringVar(&opt.Ext, "e", "", "")
 	flag.StringVar(&opt.Ext, "extension", "", "")
 
-	flag.BoolVar(&opt.InScope, "in-scope", false, "")
+	flag.BoolVar(&opt.SameHost, "same-host", false, "")
+	flag.BoolVar(&opt.SameRoot, "same-root", false, "")
 
 	flag.StringVar(&opt.Output, "output", "", "")
 	flag.StringVar(&opt.Output, "o", "", "")
+
+	flag.StringVar(&opt.Template, "template", "", "")
+	flag.StringVar(&opt.Template, "T", "", "")
 
 	flag.BoolVar(&opt.Silent, "silent", false, "")
 	flag.BoolVar(&opt.Silent, "s", false, "")
@@ -64,7 +76,7 @@ func Parse() *Options {
 	}
 
 	if err := opt.validate(); err != nil {
-		gologger.Fatalf("Error! %s", err.Error())
+		clog.Fatal("could not validate options", "err", err)
 	}
 
 	return opt
